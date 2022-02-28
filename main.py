@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import json
 import time
 from openpyxl import Workbook
-import re
+from openpyxl.styles import Color, PatternFill, Font, Border
 
 x = input("Platform 1 (pc, psn, xbox, switch): ")
 service = EdgeService(executable_path="edgedriver_win64/msedgedriver.exe")
@@ -79,6 +79,55 @@ def get_paint(i, price, item):
             item.purple = price
 workbook = Workbook()
 sheet = workbook.active
+bold = Font(bold=True)
+
+sheet["A1"] = "Item name"
+sheet["A1"].font = bold
+sheet["B1"] = "Default"
+sheet["B1"].font = bold
+sheet["B1"].fill = PatternFill(start_color='cac3b8', end_color='cac3b8', fill_type='solid')
+sheet["C1"] = "Black"
+sheet["C1"].font = bold
+sheet["C1"].fill = PatternFill(start_color='000000', end_color='000000', fill_type='solid')
+sheet["D1"] = "White"
+sheet["D1"].font = bold
+sheet["D1"].fill = PatternFill(start_color='ffffff', end_color='ffffff', fill_type='solid')
+sheet["E1"] = "Grey"
+sheet["E1"].font = bold
+sheet["E1"].fill = PatternFill(start_color='999999', end_color='999999', fill_type='solid')
+sheet["F1"] = "Crimson"
+sheet["F1"].font = bold
+sheet["F1"].fill = PatternFill(start_color='ff6363', end_color='ff6363', fill_type='solid')
+sheet["G1"] = "Pink"
+sheet["G1"].font = bold
+sheet["G1"].fill = PatternFill(start_color='f89eff', end_color='f89eff', fill_type='solid')
+sheet["H1"] = "Cobalt"
+sheet["H1"].font = bold
+sheet["H1"].fill = PatternFill(start_color='506ec9', end_color='506ec9', fill_type='solid')
+sheet["I1"] = "Skyblue"
+sheet["I1"].font = bold
+sheet["I1"].fill = PatternFill(start_color='63ffff', end_color='63ffff', fill_type='solid')
+sheet["J1"] = "Burnt"
+sheet["J1"].font = bold
+sheet["J1"].fill = PatternFill(start_color='b46f45', end_color='b46f45', fill_type='solid')
+sheet["K1"] = "Saffron"
+sheet["K1"].font = bold
+sheet["K1"].fill = PatternFill(start_color='ffff63', end_color='ffff63', fill_type='solid')
+sheet["L1"] = "Lime"
+sheet["L1"].font = bold
+sheet["L1"].fill = PatternFill(start_color='63ff63', end_color='63ff63', fill_type='solid')
+sheet["M1"] = "Green"
+sheet["M1"].font = bold
+sheet["M1"].fill = PatternFill(start_color='457337', end_color='457337', fill_type='solid')
+sheet["N1"] = "Orange"
+sheet["N1"].font = bold
+sheet["N1"].fill = PatternFill(start_color='ffaa63', end_color='ffaa63', fill_type='solid')
+sheet["O1"] = "Purple"
+sheet["O1"].font = bold
+sheet["O1"].fill = PatternFill(start_color='a862fc', end_color='a862fc', fill_type='solid')
+
+
+
 def write(item, i):
     sheet[f"A{i}"] = item.name
     sheet[f"B{i}"] = item.default
@@ -110,7 +159,9 @@ def real_price(price):
         a = float(price[0])*multiplier
         print(a)
         return a
-    except ValueError as e:
+    except (ValueError, IndexError) as e:
+        print(price)
+        print(e)
         return 0
     
 
@@ -131,8 +182,8 @@ def painted_bms(soup1):
                 item.name = name
             else:
                 price = real_price(price)
-                get_paint(i, price, item)
+                get_paint(i, int(price), item)
         item_list.append(item)
-        write(item, x)
+        write(item, x+1)
 painted_bms(soup1)
 workbook.save(filename="prices.xlsx")
