@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import json
 import time
 from openpyxl import Workbook
+import re
 
 x = input("Platform 1 (pc, psn, xbox, switch): ")
 service = EdgeService(executable_path="edgedriver_win64/msedgedriver.exe")
@@ -17,9 +18,9 @@ options.add_argument("--start-fullscreen");
 driver = webdriver.Edge(options = options, service=service)
 url1 = ("https://rl.insider.gg/en/"+x)
 driver.get(url1)
+time.sleep(10)
 html = driver.page_source
 soup1 = BeautifulSoup(html, "html.parser")
-time.sleep(1)
 driver.quit()
 #url2 = ("https://rl.insider.gg/en/"+input("Platform 2 (pc, psn, xbox, switch): "))
 
@@ -44,9 +45,6 @@ class Item:
         self.green = 0
         self.orange = 0
         self.purple = 0
-
-#workbook = Workbook()
-#sheet = workbook.active
 
 def get_paint(i, price, item):
     x = i % 15
@@ -79,29 +77,49 @@ def get_paint(i, price, item):
             item.orange = price
         case 14:
             item.purple = price
-
+workbook = Workbook()
+sheet = workbook.active
 def write(item, i):
-    print(item.name)
-    print(item.default)
-    print(item.black)
-    print(item.white)
-    print(item.grey)
-    print(item.crimson)
-    print(item.pink)
-    print(item.cobalt)
-    print(item.skyblue)
-    print(item.burnt)
-    print(item.saffron)
-    print(item.lime)
-    print(item.green)
-    print(item.orange)
-    print(item.purple)
+    sheet[f"A{i}"] = item.name
+    sheet[f"B{i}"] = item.default
+    sheet[f"C{i}"] = item.black
+    sheet[f"D{i}"] = item.white
+    sheet[f"E{i}"] = item.grey
+    sheet[f"F{i}"] = item.crimson
+    sheet[f"G{i}"] = item.pink
+    sheet[f"H{i}"] = item.cobalt
+    sheet[f"I{i}"] = item.skyblue
+    sheet[f"J{i}"] = item.burnt
+    sheet[f"K{i}"] = item.saffron
+    sheet[f"L{i}"] = item.lime
+    sheet[f"M{i}"] = item.green
+    sheet[f"N{i}"] = item.orange
+    sheet[f"O{i}"] = item.purple
 item_list = []
+
+def real_price(price):
+    #print(price)
+    price = price.split()
+    if 'k' in price:
+        multiplier = 1000
+    elif 'm' in price:
+        multiplier = 1000000
+    else:
+        multiplier = 1
+    try:
+        a = float(price[0])*multiplier
+        print(a)
+        return a
+    except ValueError as e:
+        return 0
+    
 
 def painted_bms(soup1):
     results = soup1.find(id="paintedBMDecalsPrices")
     price_elements = results.find("tbody").find_all("tr")
+    x = 0
     for items in price_elements:
+        x += 1
         i = 14
         item = Item()
         #print(item)
@@ -112,9 +130,9 @@ def painted_bms(soup1):
                 name = price[:int(len(price)/2)]
                 item.name = name
             else:
+                price = real_price(price)
                 get_paint(i, price, item)
-        #write(item, i-13)
         item_list.append(item)
-print(item_list)
-#workbook.save(filename="prices.xlsx")
+        write(item, x)
 painted_bms(soup1)
+workbook.save(filename="prices.xlsx")
