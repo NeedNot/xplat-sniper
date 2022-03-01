@@ -5,6 +5,7 @@ from selenium.webdriver.edge.options import Options
 from bs4 import BeautifulSoup
 import json
 import time
+from tqdm import tqdm
 from openpyxl import Workbook
 from openpyxl.styles import Color, PatternFill, Font, Border
 
@@ -118,7 +119,7 @@ def write2(item, i, color):
     else:
         font = Font(color='000000')
     sheet[f"D{i}"] = item.price
-    sheet[f"E{i}"] = float(sheet[f"C{i}"].value) - item.price
+    sheet[f"E{i}"] = item.price - float(sheet[f"C{i}"].value)
     try:
         sheet[f"F{i}"] = float(sheet[f"C{i}"].value) / item.price
     except ZeroDivisionError:
@@ -140,11 +141,11 @@ def real_price(price):
         multiplier = 1
     try:
         a = float(price[0])*multiplier
-        print(a)
+        #print(a)
         return a
     except (ValueError, IndexError) as e:
-        print(price)
-        print(e)
+        #print(price)
+       #print(e)
         return 0
 
 
@@ -180,54 +181,12 @@ def get_color(paint):
             return PatternFill(start_color='a862fc', end_color='a862fc', fill_type='solid')
 
 
-def painted_bms(soup1, soup2):
-    results = soup1.find(id="paintedBMDecalsPrices")
-    price_elements = results.find("tbody").find_all("tr")
-    x = 0
-    for items in price_elements:
-        i = 14
-        #print(item)
-        for paint in items.find_all("td"):
-            x += 1
-            i += 1
-            price = paint.text
-            if price != '-' and i % 15 == 0:
-                name = price[:int(len(price)/2)]
-                item = Item()
-                item.name = name
-            else:
-                item.price = real_price(price)
-                item.paint = get_paint(i)
-                color = get_color(item.paint)
-                write(item, x+1, color)
 
-    results2 = soup2.find(id="paintedBMDecalsPrices")
-    price_elements2 = results2.find("tbody").find_all("tr")
-    x = 0
-    for items in price_elements2:
-        i = 14
-        #print(item)
-        for paint in items.find_all("td"):
-            x += 1
-            i += 1
-            price = paint.text
-            if price != '-' and i % 15 == 0:
-                name = price[:int(len(price)/2)]
-                item = Item()
-                item.name = name
-            else:
-                item.price = real_price(price)
-                item.paint = get_paint(i)
-                color = get_color(item.paint)
-                write2(item, x+1, color)
-    return x
-
-
-def painted_ges(soup1, soup2, x):
+def paint_table(soup1, soup2, x, table):
     y = x
-    results = soup1.find(id="paintedGoalExplosionsPrices")
+    results = soup1.find(id=table)
     price_elements = results.find("tbody").find_all("tr")
-    for items in price_elements:
+    for items in tqdm(price_elements):
         i = 14
         #print(item)
         for paint in items.find_all("td"):
@@ -244,7 +203,7 @@ def painted_ges(soup1, soup2, x):
                 color = get_color(item.paint)
                 write(item, x+1, color)
 
-    results2 = soup2.find(id="paintedGoalExplosionsPrices")
+    results2 = soup2.find(id=table)
     price_elements2 = results2.find("tbody").find_all("tr")
     x = y
     for items in price_elements2:
@@ -264,6 +223,80 @@ def painted_ges(soup1, soup2, x):
                 color = get_color(item.paint)
                 write2(item, x+1, color)
     return x
-i = painted_bms(soup1, soup2)
-i = painted_ges(soup1, soup2, i)
+def unpaint_table(soup1, soup2, x, table):
+    y = x
+    results = soup1.find(id=table)
+    price_elements = results.find("tbody").find_all("tr")
+    for items in tqdm(price_elements):
+        i = 1
+        #print(item)
+        for paint in items.find_all("td"):
+            x += 1
+            i += 1
+            price = paint.text
+            if price != '-' and i % 2 == 0:
+                name = price[:int(len(price)/2)]
+                item = Item()
+                item.name = name
+            else:
+                item.price = real_price(price)
+                color = get_color("default")
+                write(item, x+1, color)
+
+    results2 = soup2.find(id=table)
+    price_elements2 = results2.find("tbody").find_all("tr")
+    x = y
+    for items in price_elements2:
+        i = 1
+        #print(item)
+        for paint in items.find_all("td"):
+            x += 1
+            i += 1
+            price = paint.text
+            if price != '-' and i % 2 == 0:
+                name = price[:int(len(price)/2)]
+                item = Item()
+                item.name = name
+            else:
+                item.price = real_price(price)
+                color = get_color("default")
+                write2(item, x+1, color)
+    return x
+
+i = paint_table(soup1, soup2, 0, "paintedBMDecalsPrices")
+i = paint_table(soup1, soup2, i, "paintedGoalExplosionsPrices")
+i = paint_table(soup1, soup2, i, "paintedCarsPrices")
+i = paint_table(soup1, soup2, i, "paintedWheelsExoticPrices")
+i = paint_table(soup1, soup2, i, "paintedWheelsLimitedPrices")
+i = paint_table(soup1, soup2, i, "paintedWheelsImportPrices")
+i = paint_table(soup1, soup2, i, "paintedWheelsVeryRarePrices")
+i = paint_table(soup1, soup2, i, "paintedWheelsRarePrices")
+i = paint_table(soup1, soup2, i, "paintedWheelsUncommonPrices")
+i = paint_table(soup1, soup2, i, "paintedDecalsPrices")
+i = paint_table(soup1, soup2, i, "paintedBoostsPrices")
+i = paint_table(soup1, soup2, i, "paintedToppersPrices")
+i = paint_table(soup1, soup2, i, "paintedAntennasPrices")
+i = paint_table(soup1, soup2, i, "paintedTrailsPrices")
+i = paint_table(soup1, soup2, i, "paintedBannersPrices")
+i = paint_table(soup1, soup2, i, "paintedAvatarBordersPrices")
+i = paint_table(soup1, soup2, i, "paintedBoostsPrices")
+i = paint_table(soup1, soup2, i, "paintedBoostsPrices")
+
+i = unpaint_table(soup1, soup2, i, "alphaBetaPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedGoalExplosionsPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedCarsPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedWheelsPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedDecalsPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedBoostsPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedToppersPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedAntennasPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedTrailsPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedBannersPrices")
+i = unpaint_table(soup1, soup2, i, "unpaintedAvatarBordersPrices")
+i = unpaint_table(soup1, soup2, i, "engineAudioPrices")
+i = unpaint_table(soup1, soup2, i, "giftPacksPrices")
+i = unpaint_table(soup1, soup2, i, "paintFinishesPrices")
+
+
+
 workbook.save(filename="prices.xlsx")
