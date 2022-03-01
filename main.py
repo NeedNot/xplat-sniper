@@ -9,20 +9,30 @@ from openpyxl import Workbook
 from openpyxl.styles import Color, PatternFill, Font, Border
 
 x = input("Platform 1 (pc, psn, xbox, switch): ")
+y = input("Platform 2 (pc, psn, xbox, switch): ")
 service = EdgeService(executable_path="edgedriver_win64/msedgedriver.exe")
 
 options = Options()
 #options.add_argument("headless")
 options.add_argument("--start-fullscreen");
 
-driver = webdriver.Edge(options = options, service=service)
+
 url1 = ("https://rl.insider.gg/en/"+x)
+url2 = ("https://rl.insider.gg/en/"+y)
+driver = webdriver.Edge(options = options, service=service)
+print(f"Downloading {x} prices")
 driver.get(url1)
 time.sleep(10)
 html = driver.page_source
 soup1 = BeautifulSoup(html, "html.parser")
+
+print(f"Downloading {y} prices")
+driver.get(url2)
+time.sleep(10)
+html2 = driver.page_source
+soup2 = BeautifulSoup(html2, "html.parser")
 driver.quit()
-#url2 = ("https://rl.insider.gg/en/"+input("Platform 2 (pc, psn, xbox, switch): "))
+
 
 #platform_2 =
 
@@ -31,121 +41,94 @@ driver.quit()
 class Item:
     def __init__(self):
         self.name = None
-        self.default = 0
-        self.black = 0
-        self.white = 0
-        self.grey = 0
-        self.crimson = 0
-        self.pink = 0
-        self.cobalt = 0
-        self.skyblue = 0
-        self.burnt = 0
-        self.saffron = 0
-        self.lime = 0
-        self.green = 0
-        self.orange = 0
-        self.purple = 0
+        self.paint = None
+        self.price = 0
 
-def get_paint(i, price, item):
+
+def get_paint(i):
     x = i % 15
     match x:
         case 1:
-            item.default = price
+            return "default"
         case 2:
-            item.black = price
+            return "black"
         case 3:
-            item.white = price
+            return "white"
         case 4:
-            item.grey = price
+            return "grey"
         case 5:
-            item.crimson = price
+            return "crimson"
         case 6:
-            item.pink = price
+            return "pink"
         case 7:
-            item.cobalt = price
+            return "cobalt"
         case 8:
-            item.skyblue = price
+            return "skyblue"
         case 9:
-            item.burnt = price
+            return "burnt"
         case 10:
-            item.saffron = price
+            return "saffron"
         case 11:
-            item.lime = price
+            return "lime"
         case 12:
-            item.green = price
+            return "green"
         case 13:
-            item.orange = price
+            return "orange"
         case 14:
-            item.purple = price
+            return "purple"
 workbook = Workbook()
 sheet = workbook.active
 bold = Font(bold=True)
 
 sheet["A1"] = "Item name"
 sheet["A1"].font = bold
-sheet["B1"] = "Default"
+sheet["B1"] = "Paint"
 sheet["B1"].font = bold
-sheet["B1"].fill = PatternFill(start_color='cac3b8', end_color='cac3b8', fill_type='solid')
-sheet["C1"] = "Black"
+sheet["C1"] = f"Price {x}"
 sheet["C1"].font = bold
-sheet["C1"].fill = PatternFill(start_color='000000', end_color='000000', fill_type='solid')
-sheet["D1"] = "White"
+sheet["D1"] = f"Price {y}"
 sheet["D1"].font = bold
-sheet["D1"].fill = PatternFill(start_color='ffffff', end_color='ffffff', fill_type='solid')
-sheet["E1"] = "Grey"
+sheet["E1"] = "Dif"
 sheet["E1"].font = bold
-sheet["E1"].fill = PatternFill(start_color='999999', end_color='999999', fill_type='solid')
-sheet["F1"] = "Crimson"
+sheet["F1"] = "%"
 sheet["F1"].font = bold
-sheet["F1"].fill = PatternFill(start_color='ff6363', end_color='ff6363', fill_type='solid')
-sheet["G1"] = "Pink"
-sheet["G1"].font = bold
-sheet["G1"].fill = PatternFill(start_color='f89eff', end_color='f89eff', fill_type='solid')
-sheet["H1"] = "Cobalt"
-sheet["H1"].font = bold
-sheet["H1"].fill = PatternFill(start_color='506ec9', end_color='506ec9', fill_type='solid')
-sheet["I1"] = "Skyblue"
-sheet["I1"].font = bold
-sheet["I1"].fill = PatternFill(start_color='63ffff', end_color='63ffff', fill_type='solid')
-sheet["J1"] = "Burnt"
-sheet["J1"].font = bold
-sheet["J1"].fill = PatternFill(start_color='b46f45', end_color='b46f45', fill_type='solid')
-sheet["K1"] = "Saffron"
-sheet["K1"].font = bold
-sheet["K1"].fill = PatternFill(start_color='ffff63', end_color='ffff63', fill_type='solid')
-sheet["L1"] = "Lime"
-sheet["L1"].font = bold
-sheet["L1"].fill = PatternFill(start_color='63ff63', end_color='63ff63', fill_type='solid')
-sheet["M1"] = "Green"
-sheet["M1"].font = bold
-sheet["M1"].fill = PatternFill(start_color='457337', end_color='457337', fill_type='solid')
-sheet["N1"] = "Orange"
-sheet["N1"].font = bold
-sheet["N1"].fill = PatternFill(start_color='ffaa63', end_color='ffaa63', fill_type='solid')
-sheet["O1"] = "Purple"
-sheet["O1"].font = bold
-sheet["O1"].fill = PatternFill(start_color='a862fc', end_color='a862fc', fill_type='solid')
 
 
 
-def write(item, i):
+def write(item, i, color):
+
+    if color == PatternFill(start_color='000000', end_color='000000', fill_type='solid'):
+        font = Font(color='ffffff')
+    else:
+        font = Font(color='000000')
+
     sheet[f"A{i}"] = item.name
-    sheet[f"B{i}"] = item.default
-    sheet[f"C{i}"] = item.black
-    sheet[f"D{i}"] = item.white
-    sheet[f"E{i}"] = item.grey
-    sheet[f"F{i}"] = item.crimson
-    sheet[f"G{i}"] = item.pink
-    sheet[f"H{i}"] = item.cobalt
-    sheet[f"I{i}"] = item.skyblue
-    sheet[f"J{i}"] = item.burnt
-    sheet[f"K{i}"] = item.saffron
-    sheet[f"L{i}"] = item.lime
-    sheet[f"M{i}"] = item.green
-    sheet[f"N{i}"] = item.orange
-    sheet[f"O{i}"] = item.purple
-item_list = []
+    sheet[f"A{i}"].font = font
+    sheet[f"A{i}"].fill = color
+    sheet[f"B{i}"] = item.paint
+    sheet[f"B{i}"].font = font
+    sheet[f"B{i}"].fill = color
+    sheet[f"C{i}"] = item.price
+    sheet[f"C{i}"].font = font
+    sheet[f"C{i}"].fill = color
 
+def write2(item, i, color):
+    if color == PatternFill(start_color='000000', end_color='000000', fill_type='solid'):
+        font = Font(color='ffffff')
+    else:
+        font = Font(color='000000')
+    sheet[f"D{i}"] = item.price
+    sheet[f"E{i}"] = float(sheet[f"C{i}"].value) - item.price
+    try:
+        sheet[f"F{i}"] = float(sheet[f"C{i}"].value) / item.price
+    except ZeroDivisionError:
+        sheet[f"F{i}"] = 0
+    sheet[f"F{i}"].fill = color
+    sheet[f"F{i}"].font = font
+    sheet[f"D{i}"].fill = color
+    sheet[f"D{i}"].font = font
+    sheet[f"E{i}"].fill = color
+    sheet[f"E{i}"].font = font
 def real_price(price):
     #print(price)
     price = price.split()
@@ -163,27 +146,124 @@ def real_price(price):
         print(price)
         print(e)
         return 0
-    
 
-def painted_bms(soup1):
+
+def get_color(paint):
+    match paint:
+        case "default":
+            return PatternFill(start_color='cac3b8', end_color='cac3b8', fill_type='solid')
+        case "black":
+            return PatternFill(start_color='000000', end_color='000000', fill_type='solid')
+        case "white":
+            return PatternFill(start_color='ffffff', end_color='ffffff', fill_type='solid')
+        case "grey":
+            return PatternFill(start_color='999999', end_color='999999', fill_type='solid')
+        case "crimson":
+            return PatternFill(start_color='ff6363', end_color='ff6363', fill_type='solid')
+        case "pink":
+            return PatternFill(start_color='f89eff', end_color='f89eff', fill_type='solid')
+        case "cobalt":
+            return PatternFill(start_color='506ec9', end_color='506ec9', fill_type='solid')
+        case "skyblue":
+            return PatternFill(start_color='63ffff', end_color='63ffff', fill_type='solid')
+        case "burnt":
+            return PatternFill(start_color='b46f45', end_color='b46f45', fill_type='solid')
+        case "saffron":
+            return PatternFill(start_color='ffff63', end_color='ffff63', fill_type='solid')
+        case "lime":
+            return PatternFill(start_color='63ff63', end_color='63ff63', fill_type='solid')
+        case "green":
+            return PatternFill(start_color='457337', end_color='457337', fill_type='solid')
+        case "orange":
+            return PatternFill(start_color='ffaa63', end_color='ffaa63', fill_type='solid')
+        case "purple":
+            return PatternFill(start_color='a862fc', end_color='a862fc', fill_type='solid')
+
+
+def painted_bms(soup1, soup2):
     results = soup1.find(id="paintedBMDecalsPrices")
     price_elements = results.find("tbody").find_all("tr")
     x = 0
     for items in price_elements:
-        x += 1
         i = 14
-        item = Item()
         #print(item)
         for paint in items.find_all("td"):
+            x += 1
             i += 1
             price = paint.text
             if price != '-' and i % 15 == 0:
                 name = price[:int(len(price)/2)]
+                item = Item()
                 item.name = name
             else:
-                price = real_price(price)
-                get_paint(i, int(price), item)
-        item_list.append(item)
-        write(item, x+1)
-painted_bms(soup1)
+                item.price = real_price(price)
+                item.paint = get_paint(i)
+                color = get_color(item.paint)
+                write(item, x+1, color)
+
+    results2 = soup2.find(id="paintedBMDecalsPrices")
+    price_elements2 = results2.find("tbody").find_all("tr")
+    x = 0
+    for items in price_elements2:
+        i = 14
+        #print(item)
+        for paint in items.find_all("td"):
+            x += 1
+            i += 1
+            price = paint.text
+            if price != '-' and i % 15 == 0:
+                name = price[:int(len(price)/2)]
+                item = Item()
+                item.name = name
+            else:
+                item.price = real_price(price)
+                item.paint = get_paint(i)
+                color = get_color(item.paint)
+                write2(item, x+1, color)
+        return i
+
+
+def painted_ges(soup1, soup2, x):
+    y = x
+    results = soup1.find(id="paintedGoalExplosionsPrices")
+    price_elements = results.find("tbody").find_all("tr")
+    for items in price_elements:
+        i = 14
+        #print(item)
+        for paint in items.find_all("td"):
+            x += 1
+            i += 1
+            price = paint.text
+            if price != '-' and i % 15 == 0:
+                name = price[:int(len(price)/2)]
+                item = Item()
+                item.name = name
+            else:
+                item.price = real_price(price)
+                item.paint = get_paint(i)
+                color = get_color(item.paint)
+                write(item, x+1, color)
+
+    results2 = soup2.find(id="paintedGoalExplosionsPrices")
+    price_elements2 = results2.find("tbody").find_all("tr")
+    x = y
+    for items in price_elements2:
+        i = 14
+        #print(item)
+        for paint in items.find_all("td"):
+            x += 1
+            i += 1
+            price = paint.text
+            if price != '-' and i % 15 == 0:
+                name = price[:int(len(price)/2)]
+                item = Item()
+                item.name = name
+            else:
+                item.price = real_price(price)
+                item.paint = get_paint(i)
+                color = get_color(item.paint)
+                print(item, x+1, color)
+        return x
+i = painted_bms(soup1, soup2)
+#i = painted_ges(soup1, soup2, i)
 workbook.save(filename="prices.xlsx")
