@@ -220,7 +220,7 @@ def painted_bms(soup1, soup2):
                 item.paint = get_paint(i)
                 color = get_color(item.paint)
                 write2(item, x+1, color)
-        return i
+    return x
 
 
 def painted_ges(soup1, soup2, x):
@@ -262,8 +262,8 @@ def painted_ges(soup1, soup2, x):
                 item.price = real_price(price)
                 item.paint = get_paint(i)
                 color = get_color(item.paint)
-                print(item, x+1, color)
-        return x
+                write2(item, x+1, color)
+    return x
 i = painted_bms(soup1, soup2)
-#i = painted_ges(soup1, soup2, i)
+i = painted_ges(soup1, soup2, i)
 workbook.save(filename="prices.xlsx")
